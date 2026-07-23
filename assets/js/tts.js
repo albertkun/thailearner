@@ -108,7 +108,10 @@ const TTS = {
       const name = (err && err.name) || 'play rejected';
       // AbortError = playback was deliberately stopped (a newer sound replaced it,
       // or the user navigated). That's expected, not a failure — stay quiet.
-      if (name === 'AbortError') return;
+      // NotAllowedError = autoplay blocked before the first user gesture (writing
+      // practice speaks on load). Also not a broken bundle — and Web Speech would
+      // be blocked too, so don't fall back either.
+      if (name === 'AbortError' || name === 'NotAllowedError') return;
       fallback(name);
     });
   },

@@ -3,6 +3,7 @@
 
 const STORAGE_KEY = 'thai-trainer:v1';
 const CUSTOM_WORDS_KEY = 'thai-trainer:mywords:v1';
+const TIPS_KEY = 'thai-trainer:tips:v1';
 
 // A tiny Leitner-style spaced-repetition schedule. `box` 0..5 → interval in days.
 const SRS_INTERVALS = [0, 1, 2, 4, 8, 16, 32];
@@ -29,10 +30,25 @@ const Store = {
   // progress: { [itemId]: { status, box, reviews, correct, lastReviewed, due } }
   progress: loadRaw(STORAGE_KEY, {}),
   customWords: loadRaw(CUSTOM_WORDS_KEY, []),
+  // tips: { [itemId]: "the user's own memory hook" } — shown next to the built-in one.
+  tips: loadRaw(TIPS_KEY, {}),
 
   _persist() {
     saveRaw(STORAGE_KEY, this.progress);
     saveRaw(CUSTOM_WORDS_KEY, this.customWords);
+    saveRaw(TIPS_KEY, this.tips);
+  },
+
+  // ---- user-written memory hooks ----
+  getTip(id) {
+    return this.tips[id] || '';
+  },
+
+  setTip(id, text) {
+    const t = (text || '').trim();
+    if (t) this.tips[id] = t;
+    else delete this.tips[id];
+    this._persist();
   },
 
   getRecord(id) {
@@ -86,6 +102,7 @@ const Store = {
   removeWord(id) {
     this.customWords = this.customWords.filter(w => w.id !== id);
     delete this.progress[id];
+    delete this.tips[id];
     this._persist();
   },
 
@@ -116,7 +133,8 @@ const Store = {
       version: 1,
       exportedAt: new Date().toISOString(),
       progress: this.progress,
-      customWords: this.customWords
+      customWords: this.customWords,
+      tips: this.tips
     }, null, 2);
   },
 
@@ -125,12 +143,14 @@ const Store = {
     if (typeof data !== 'object' || !data.progress) throw new Error('Not a valid Thai Trainer backup file.');
     this.progress = data.progress || {};
     this.customWords = Array.isArray(data.customWords) ? data.customWords : [];
+    this.tips = (data.tips && typeof data.tips === 'object') ? data.tips : {}; // absent in v1 backups
     this._persist();
   },
 
   reset() {
     this.progress = {};
     this.customWords = [];
+    this.tips = {};
     this._persist();
   }
 };

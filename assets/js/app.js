@@ -269,7 +269,14 @@
 
   // ---------- WRITE ----------
   // Start on a random consonant so practice doesn't always begin at ก ไก่.
-  const writeState = { catKey: 'consonant', idx: Math.floor(Math.random() * ((D.CONSONANTS && D.CONSONANTS.length) || 1)) };
+  const AUTOSPEAK_KEY = 'thai-trainer:write-autospeak';
+  const writeState = {
+    catKey: 'consonant',
+    idx: Math.floor(Math.random() * ((D.CONSONANTS && D.CONSONANTS.length) || 1)),
+    // Say the letter when it appears and again as the pen goes down, so you hear
+    // what you're writing. On by default; remembered per device.
+    autoSpeak: localStorage.getItem(AUTOSPEAK_KEY) !== '0'
+  };
   function writeItems() {
     if (writeState.catKey === 'myword') return window.Store.customWords;
     return D.CATEGORIES.find(c => c.key === writeState.catKey).items.map(it => D.ITEMS_BY_ID[it.id]);
@@ -286,7 +293,7 @@
     const wrap = el('div', 'view');
     const head = el('div', 'view-head');
     head.appendChild(el('h2', null, 'Writing practice'));
-    head.appendChild(el('p', 'muted', 'Trace the faint guide with your mouse, finger, or stylus. Toggle the guide off to test yourself.'));
+    head.appendChild(el('p', 'muted', 'Trace the faint guide with your mouse, finger, or stylus. You hear the letter as you write it. Toggle the guide off to test yourself.'));
     wrap.appendChild(head);
 
     const items = writeItems();
@@ -331,30 +338,97 @@
     const gt = el('input'); gt.type = 'checkbox'; gt.checked = window.Writing.showGuide;
     guideToggle.appendChild(gt); guideToggle.appendChild(el('span', null, 'Show guide'));
 
+    const speakToggle = el('label', 'toggle');
+    const st = el('input'); st.type = 'checkbox'; st.checked = writeState.autoSpeak;
+    speakToggle.appendChild(st); speakToggle.appendChild(el('span', null, '🔊 Say it as I write'));
+
     prev.addEventListener('click', () => { writeState.idx = (writeState.idx - 1 + items.length) % items.length; render(); });
     rand.addEventListener('click', () => { writeState.idx = randWriteIdx(items.length, writeState.idx); render(); });
     next.addEventListener('click', () => { writeState.idx = (writeState.idx + 1) % items.length; render(); });
-    clear.addEventListener('click', () => window.Writing.clear());
+    clear.addEventListener('click', () => {
+      window.Writing.clear();
+      if (writeState.autoSpeak) window.TTS.speakItem(item); // fresh attempt → hear it again
+    });
     gt.addEventListener('change', () => window.Writing.toggleGuide(gt.checked));
+    st.addEventListener('change', () => {
+      writeState.autoSpeak = st.checked;
+      localStorage.setItem(AUTOSPEAK_KEY, st.checked ? '1' : '0');
+      if (st.checked) window.TTS.speakItem(item);
+    });
 
     tools.appendChild(prev);
     tools.appendChild(rand);
     tools.appendChild(clear);
     tools.appendChild(guideToggle);
+    tools.appendChild(speakToggle);
     tools.appendChild(next);
     wrap.appendChild(tools);
 
     const counter = el('div', 'muted center', `${writeState.idx + 1} / ${items.length}`);
     wrap.appendChild(counter);
 
+    wrap.appendChild(tipPanel(item));
+
     // Mount the canvas after it's in the DOM (needs layout size).
     setTimeout(() => {
       window.Writing.mount(canvas);
       // Strip the dotted placeholder so the guide shows the mark on its own where possible.
       window.Writing.setGuide(item.char);
+      // Speak on the first stroke of each attempt only — not on every stroke, which
+      // would talk over you on multi-stroke letters.
+      window.Writing.onStrokeStart = (isFirst) => {
+        if (isFirst && writeState.autoSpeak) window.TTS.speakItem(item);
+      };
+      // ...and once when the letter appears. Re-renders that keep the same item
+      // (theme toggle, saving a tip) stay quiet.
+      if (writeState.autoSpeak && writeState.spokenId !== item.id) {
+        writeState.spokenId = item.id;
+        window.TTS.speakItem(item);
+      }
     }, 0);
 
     return wrap;
+  }
+
+  // Memory-hook panel under the canvas: the built-in mnemonic, how to draw it,
+  // and the user's own note (saved per item).
+  function tipPanel(item) {
+    const panel = el('section', 'tip-panel');
+    const head = el('div', 'tip-head');
+    head.appendChild(el('span', 'tip-title', '💡 Tip'));
+    panel.appendChild(head);
+
+    const builtIn = window.Mnemonics.get(item.id);
+    if (builtIn) panel.appendChild(el('p', 'tip-text', esc(builtIn)));
+
+    const cat = item.category || 'word';
+    panel.appendChild(el('p', 'tip-stroke', '✍️ ' + esc(window.Mnemonics.strokeTip(cat))));
+
+    if (item.category === 'consonant') {
+      panel.appendChild(el('p', 'tip-stroke',
+        `🎵 Tone class: <b>${esc(item.class)}</b> — this decides the tone of any syllable it starts.`));
+    }
+
+    // The user's own hook. Saved on blur so typing never triggers a re-render.
+    const mine = el('div', 'tip-mine');
+    const label = el('label', 'tip-label', 'Your own hook');
+    const ta = el('textarea', 'tip-input');
+    ta.placeholder = 'Whatever makes it stick for you…';
+    ta.rows = 2;
+    ta.value = window.Store.getTip(item.id);
+    const status = el('span', 'tip-saved', '');
+    ta.addEventListener('blur', () => {
+      const before = window.Store.getTip(item.id);
+      if (ta.value.trim() === before) return;
+      window.Store.setTip(item.id, ta.value);
+      status.textContent = 'saved';
+      setTimeout(() => { status.textContent = ''; }, 1500);
+    });
+    label.appendChild(status);
+    mine.appendChild(label);
+    mine.appendChild(ta);
+    panel.appendChild(mine);
+    return panel;
   }
 
   // ---------- WORDS (manager) ----------

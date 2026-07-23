@@ -190,6 +190,21 @@ body {
 .write-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; margin: 14px 0 6px; }
 .toggle { display: inline-flex; align-items: center; gap: 6px; font-size: .9rem; color: var(--muted); cursor: pointer; }
 
+/* mnemonic / tip panel under the canvas */
+.tip-panel { margin: 16px 0 4px; background: var(--surface); border: 1px solid var(--border);
+  border-left: 4px solid var(--accent); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow); }
+.tip-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.tip-title { font-weight: 700; font-size: .95rem; }
+.tip-text { margin: 0 0 8px; line-height: 1.5; }
+.tip-stroke { margin: 0 0 8px; color: var(--muted); font-size: .88rem; line-height: 1.5; }
+.tip-mine { margin-top: 10px; }
+.tip-label { display: flex; align-items: center; gap: 8px; font-size: .8rem; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .04em; margin-bottom: 4px; }
+.tip-saved { text-transform: none; letter-spacing: 0; color: var(--accent); }
+.tip-input { width: 100%; resize: vertical; font: inherit; font-size: .92rem; padding: 8px 10px;
+  border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); color: var(--text); }
+.tip-input:focus { outline: none; border-color: var(--accent); }
+
 /* ---------- word manager ---------- */
 .word-form { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; margin-bottom: 20px; }
 .word-form .input { width: 100%; }

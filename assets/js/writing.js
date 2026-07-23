@@ -8,6 +8,8 @@ const Writing = {
   guideChar: '',
   showGuide: true,
   lastPoint: null,
+  onStrokeStart: null,  // called with (isFirstStrokeOfAttempt) when the pen goes down
+  _hasStrokes: false,   // reset by clear()/setGuide(); drives "first stroke" above
 
   mount(canvas) {
     this.canvas = canvas;
@@ -40,6 +42,11 @@ const Writing = {
     this.clear();
   },
 
+  // True once the user has drawn anything since the last clear / item change.
+  hasStrokes() {
+    return this._hasStrokes;
+  },
+
   toggleGuide(on) {
     this.showGuide = on;
     this.redraw();
@@ -52,7 +59,14 @@ const Writing = {
   },
 
   _bindEvents() {
-    const start = (e) => { e.preventDefault(); this.drawing = true; this.lastPoint = this._pos(e); };
+    const start = (e) => {
+      e.preventDefault();
+      this.drawing = true;
+      this.lastPoint = this._pos(e);
+      const first = !this._hasStrokes;
+      this._hasStrokes = true;
+      if (this.onStrokeStart) this.onStrokeStart(first);
+    };
     const move = (e) => {
       if (!this.drawing) return;
       e.preventDefault();
@@ -79,6 +93,7 @@ const Writing = {
   },
 
   clear() {
+    this._hasStrokes = false;
     this.redraw();
   },
 
