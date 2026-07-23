@@ -18,6 +18,7 @@ const TTS = {
   ready: false,
   rate: 1,
   voiceChoice: 'premwadee', // which bundled voice folder to play
+  bundledAudioFailed: false, // set if a bundled mp3 ever fails to load (surfaced in Progress)
   _audio: null,          // the <audio> element currently playing
 
   init() {
@@ -72,13 +73,28 @@ const TTS = {
 
   _playFile(item) {
     this.stop();
-    const audio = new Audio(`assets/audio/${this.voiceChoice}/${item.id}.mp3`);
+    const url = `assets/audio/${this.voiceChoice}/${item.id}.mp3`;
+    const audio = new Audio(url);
     audio.playbackRate = this.rate;
     if ('preservesPitch' in audio) audio.preservesPitch = true; // slow ≠ deep
-    // If the file is missing/unloadable for any reason, fall back to Web Speech.
-    audio.onerror = () => this.speak(window.ThaiData.speakableText(item));
+
+    // If the file can't load we still want *some* audio, but never fail silently —
+    // a silent fallback makes a misconfigured setup look like bad TTS quality.
+    const fallback = (why) => {
+      this.bundledAudioFailed = true;
+      console.warn(
+        `[Thai Trainer] Bundled audio failed to play (${why}): ${url}\n` +
+        'Falling back to the browser voice, which sounds much worse.\n' +
+        'Most likely you opened index.html directly as a file:// path — browsers block ' +
+        'loading media that way. Serve the folder over http instead:\n' +
+        '    cd <this folder> && python3 -m http.server 8000   → http://localhost:8000'
+      );
+      this.speak(window.ThaiData.speakableText(item));
+    };
+
+    audio.onerror = () => fallback('load error');
     this._audio = audio;
-    audio.play().catch(() => this.speak(window.ThaiData.speakableText(item)));
+    audio.play().catch((err) => fallback((err && err.name) || 'play rejected'));
   },
 
   // Raw-text speech via Web Speech API (custom words, fallback path).

@@ -452,7 +452,15 @@
 
     // speech status — bundled audio always works; Web Speech only matters for custom words
     const speech = el('div', 'note-box');
-    let msg = '✅ High-quality Thai audio is bundled with the app for all built-in content — it works offline in every browser.';
+    let msg;
+    if (window.TTS.bundledAudioFailed) {
+      msg = '⚠️ <b>The bundled neural audio failed to load</b>, so playback fell back to your browser’s voice ' +
+        '(which sounds much worse). This almost always means the page was opened as a <code>file://</code> path — ' +
+        'browsers block loading media that way. Serve the folder over http instead:<br>' +
+        '<code>python3 -m http.server 8000</code> → then open <code>http://localhost:8000</code>';
+    } else {
+      msg = '✅ High-quality Thai audio is bundled with the app for all built-in content — it works offline in every browser.';
+    }
     if (!('speechSynthesis' in window)) {
       msg += '<br>⚠️ This browser has no speech synthesis, so <b>custom words you add</b> will have no audio.';
     } else if (!window.TTS.hasThaiVoice()) {

@@ -39,6 +39,11 @@ Edge's free neural Thai voices). Re-run it only if the dataset in `data.js` chan
 cd tools && npm install && npm run generate-audio
 ```
 
+> **Serve it over http, not `file://`.** Browsers block loading media from `file://` paths,
+> so opening `index.html` directly makes the bundled audio fail and silently fall back to
+> the (much worse) browser voice. See [Run locally](#run-locally). If this happens, the
+> Progress tab and the browser console both tell you.
+
 **Custom words you add** have no pre-generated file, so they fall back to the browser's
 built-in **Web Speech API** with the best Thai (`th-TH`) voice available (ranked by
 quality — Edge/Chrome's neural voices first, then OS voices):
@@ -47,6 +52,14 @@ quality — Edge/Chrome's neural voices first, then OS voices):
 - **Windows:** install the Thai language pack (Settings → Time & Language → Language) to get
   the *Pattara* voice.
 - **Android/Chrome:** usually available after installing Thai text-to-speech.
+- **Linux:** there is effectively **no good native Thai voice**. Web Speech goes through
+  `speech-dispatcher`, and the usual backend (`espeak-ng`) either can't speak Thai or sounds
+  very robotic. This is exactly why the built-in content ships as pre-generated audio —
+  on Linux that's the only way to get natural pronunciation without a cloud service.
+- **Firefox:** relies on the OS speech service (`speech-dispatcher` on Linux, SAPI on
+  Windows, NSSpeechSynthesizer on macOS) and exposes no neural voices of its own. On Linux
+  in particular, custom words may be robotic or silent — Chromium-based browsers have
+  better Thai coverage. Built-in content is unaffected and sounds identical in Firefox.
 - If no Thai voice is found, the Progress tab tells you, and playback of custom words falls
   back to a default voice (which may mispronounce or stay silent).
 - Note: some browser voices (Edge's "Online/Natural", Chrome's "Google ไทย") are network
