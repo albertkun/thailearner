@@ -111,6 +111,13 @@ body {
 .subtab:hover { color: var(--text); }
 .subtab.active { background: var(--text); color: var(--surface); border-color: var(--text); }
 
+/* ---------- learn subsections ---------- */
+.learn-subhead {
+  margin: 22px 0 12px; font-size: 1rem; font-weight: 800; color: var(--text);
+  padding-bottom: 6px; border-bottom: 2px solid var(--border);
+}
+.learn-subhead:first-of-type { margin-top: 4px; }
+
 /* ---------- character cards ---------- */
 .card-grid {
   display: grid; gap: 12px;

@@ -17,6 +17,12 @@
 
   // Thai labels for the SRS status (class stays the English key for CSS).
   const STATUS_TH = { new: 'ใหม่', learning: 'กำลังเรียน', known: 'จำได้' };
+  // Subsection labels within a kana set (basic / voiced / contracted).
+  const SUB_LABELS = {
+    basic:   'พื้นฐาน (46 ตัว)',
+    dakuten: 'เสียงขุ่น ゛ ゜ (dakuten / handakuten)',
+    yoon:    'ควบกล้ำ ゃ ゅ ょ (yōon)'
+  };
   // Is this a vocabulary item (built-in word or the user's own)?
   const isWordy = (item) => item.category === 'word' || item.category === 'myword';
   // The short label to say/show for an item: romaji for kana, romaji for words.
@@ -77,9 +83,23 @@
     });
     wrap.appendChild(tabs);
 
-    let items;
-    if (state.learnCat === 'myword') items = window.Store.customWords;
-    else items = D.CATEGORIES.find(c => c.key === state.learnCat).items.map(it => D.ITEMS_BY_ID[it.id]);
+    // Kana tabs get labeled subsections (basic / dakuten / yōon); words are a flat grid.
+    if (state.learnCat === 'hiragana' || state.learnCat === 'katakana') {
+      const kana = D.CATEGORIES.find(c => c.key === state.learnCat).items.map(it => D.ITEMS_BY_ID[it.id]);
+      ['basic', 'dakuten', 'yoon'].forEach(sub => {
+        const subItems = kana.filter(it => (it.sub || 'basic') === sub);
+        if (!subItems.length) return;
+        wrap.appendChild(el('h3', 'learn-subhead', esc(SUB_LABELS[sub])));
+        const grid = el('div', 'card-grid');
+        subItems.forEach(item => grid.appendChild(charCard(item)));
+        wrap.appendChild(grid);
+      });
+      return wrap;
+    }
+
+    const items = state.learnCat === 'myword'
+      ? window.Store.customWords
+      : D.CATEGORIES.find(c => c.key === state.learnCat).items.map(it => D.ITEMS_BY_ID[it.id]);
 
     if (!items.length) {
       const empty = el('div', 'empty', state.learnCat === 'myword'
@@ -137,7 +157,12 @@
   function buildFlashPool() {
     let items = window.Store.allItems();
     if (fc.pool !== 'all') {
-      items = items.filter(it => (it.category === fc.pool) || (fc.pool === 'word' && it.category === 'myword'));
+      const [cat, sub] = fc.pool.split(':');
+      items = items.filter(it => {
+        if (cat === 'word') return it.category === 'word' || it.category === 'myword';
+        if (it.category !== cat) return false;
+        return !sub || (it.sub || 'basic') === sub;
+      });
     }
     // Prefer due items; if none, use everything.
     const due = items.filter(it => window.Store.isDue(it.id));
@@ -172,7 +197,14 @@
     // controls
     const ctrl = el('div', 'flash-controls');
     const poolSel = el('select', 'select');
-    [['all', 'ทั้งหมด'], ['hiragana', 'ฮิรางานะ'], ['katakana', 'คาตาคานะ'], ['word', 'คำศัพท์']]
+    [['all', 'ทั้งหมด'],
+     ['hiragana', 'ฮิรางานะ (ทั้งหมด)'],
+     ['hiragana:dakuten', 'ฮิรางานะ ゛゜ เสียงขุ่น'],
+     ['hiragana:yoon', 'ฮิรางานะ ゃゅょ ควบกล้ำ'],
+     ['katakana', 'คาตาคานะ (ทั้งหมด)'],
+     ['katakana:dakuten', 'คาตาคานะ ゛゜ เสียงขุ่น'],
+     ['katakana:yoon', 'คาตาคานะ ゃゅょ ควบกล้ำ'],
+     ['word', 'คำศัพท์']]
       .forEach(([v, l]) => { const o = el('option', null, l); o.value = v; if (fc.pool === v) o.selected = true; poolSel.appendChild(o); });
     poolSel.addEventListener('change', () => { fc.pool = poolSel.value; startFlash(); });
     const poolWrap = el('label', 'field-inline', 'ชุด: '); poolWrap.appendChild(poolSel);
@@ -305,7 +337,9 @@
   };
   function writeItems() {
     if (writeState.catKey === 'myword') return window.Store.customWords;
-    return D.CATEGORIES.find(c => c.key === writeState.catKey).items.map(it => D.ITEMS_BY_ID[it.id]);
+    const [cat, sub] = writeState.catKey.split(':');
+    const base = D.CATEGORIES.find(c => c.key === cat).items.map(it => D.ITEMS_BY_ID[it.id]);
+    return sub ? base.filter(it => (it.sub || 'basic') === sub) : base;
   }
   // Pick a random index in [0, len), avoiding the current one when possible.
   function randWriteIdx(len, cur) {
@@ -333,7 +367,16 @@
     // selector row
     const row = el('div', 'write-controls');
     const catSel = el('select', 'select');
-    [['hiragana', 'ฮิรางานะ'], ['katakana', 'คาตาคานะ'], ['word', 'คำศัพท์'], ['myword', 'คำของฉัน']]
+    [['hiragana', 'ฮิรางานะ (ทั้งหมด)'],
+     ['hiragana:basic', 'ฮิรางานะ — พื้นฐาน'],
+     ['hiragana:dakuten', 'ฮิรางานะ ゛゜ เสียงขุ่น'],
+     ['hiragana:yoon', 'ฮิรางานะ ゃゅょ ควบกล้ำ'],
+     ['katakana', 'คาตาคานะ (ทั้งหมด)'],
+     ['katakana:basic', 'คาตาคานะ — พื้นฐาน'],
+     ['katakana:dakuten', 'คาตาคานะ ゛゜ เสียงขุ่น'],
+     ['katakana:yoon', 'คาตาคานะ ゃゅょ ควบกล้ำ'],
+     ['word', 'คำศัพท์'],
+     ['myword', 'คำของฉัน']]
       .forEach(([v, l]) => { const o = el('option', null, l); o.value = v; if (writeState.catKey === v) o.selected = true; catSel.appendChild(o); });
     catSel.addEventListener('change', () => {
       writeState.catKey = catSel.value;

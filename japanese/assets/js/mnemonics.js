@@ -117,11 +117,30 @@ const MNEMONICS = {
 
 // กฎลำดับเส้นทั่วไป แสดงเป็นบรรทัด "วิธีเขียน"
 const STROKE_TIPS = {
-  hiragana: 'เขียนตามลำดับเส้น: บนลงล่าง และซ้ายไปขวา เส้นแนวนอนที่ตัดผ่านมักเขียนก่อนเส้นตั้ง ฮิรางานะเป็นเส้นโค้งมน ลากต่อเนื่องนุ่มนวล.',
-  katakana: 'คาตาคานะเป็นเส้นตรงสั้นและเหลี่ยมคม เขียนบนลงล่าง ซ้ายไปขวา ยกปากกาได้ระหว่างเส้น เน้นมุมให้ชัด.',
+  hiragana: 'เขียนตามลำดับเส้น: บนลงล่าง และซ้ายไปขวา เส้นแนวนอนที่ตัดผ่านมักเขียนก่อนเส้นตั้ง ฮิรางานะเป็นเส้นโค้งมน ลากต่อเนื่องนุ่มนวล เสียงขุ่น ゛/゜ เขียนไว้มุมขวาบน และตัวควบ ゃ ゅ ょ เขียนให้เล็กกว่าตัวปกติชัดเจน.',
+  katakana: 'คาตาคานะเป็นเส้นตรงสั้นและเหลี่ยมคม เขียนบนลงล่าง ซ้ายไปขวา ยกปากกาได้ระหว่างเส้น เน้นมุมให้ชัด เสียงขุ่น ゛/゜ อยู่มุมขวาบน และตัวควบ ャ ュ ョ เขียนให้เล็ก.',
   word:     'เขียนเรียงซ้ายไปขวาทีละตัว ตัวเล็ก (ゃ ゅ ょ っ) ต้องเขียนให้เล็กกว่าตัวปกติอย่างชัดเจน จุด dakuten (゛) และ handakuten (゜) อยู่มุมขวาบน.',
   myword:   'เขียนเรียงซ้ายไปขวาทีละตัว ตัวเล็ก (ゃ ゅ ょ っ) ต้องเขียนให้เล็กกว่าตัวปกติอย่างชัดเจน จุด dakuten (゛) และ handakuten (゜) อยู่มุมขวาบน.'
 };
+
+// Derived hooks for voiced/contracted kana. These aren't new shapes — they're a base
+// kana plus a mark or a small kana — so the hook is generated from that relationship
+// rather than hand-written. (Basic kana above keep their bespoke picture hooks.)
+(function () {
+  const D = window.JPData;
+  if (!D) return;
+  [].concat(D.HIRAGANA, D.KATAKANA).forEach(k => {
+    if (MNEMONICS[k.id]) return;
+    if (k.mark === 'dakuten') {
+      MNEMONICS[k.id] = `${k.char} = ${k.baseChar} + จุดขุ่น ゛(dakuten) — เปลี่ยนเสียง "${k.baseRomaji}" ให้ก้องเป็น "${k.romaji}"` +
+        (k.note ? ` (${k.note})` : '') + '.';
+    } else if (k.mark === 'handakuten') {
+      MNEMONICS[k.id] = `${k.char} = ${k.baseChar} + วงกลมเล็ก ゜(handakuten) — เปลี่ยนเสียง "${k.baseRomaji}" เป็น "${k.romaji}".`;
+    } else if (k.mark === 'yoon') {
+      MNEMONICS[k.id] = `${k.char} = ${k.baseChar} + ${k.smallChar} ตัวเล็ก — อ่านควบกล้ำเป็นพยางค์เดียวว่า "${k.romaji}" (ตัดเสียง "i" ของ ${k.baseChar} ทิ้ง).`;
+    }
+  });
+})();
 
 window.Mnemonics = {
   get(id) { return MNEMONICS[id] || null; },

@@ -128,6 +128,95 @@ const STARTER_WORDS = [
   { id: 'w-genki',      char: 'げんき',     romanization: 'genki',      meaning: 'สบายดี / แข็งแรง' }
 ];
 
+// ---- Voiced (dakuten ゛) and semi-voiced (handakuten ゜) kana ----
+// [idSuffix, romaji, read, hira, kata, baseHira, baseKata, mark]
+const _DAKUTEN = [
+  ['ga', 'ga', 'กะ',  'が', 'ガ', 'か', 'カ', 'dakuten'],
+  ['gi', 'gi', 'กิ',  'ぎ', 'ギ', 'き', 'キ', 'dakuten'],
+  ['gu', 'gu', 'กุ',  'ぐ', 'グ', 'く', 'ク', 'dakuten'],
+  ['ge', 'ge', 'เกะ', 'げ', 'ゲ', 'け', 'ケ', 'dakuten'],
+  ['go', 'go', 'โกะ', 'ご', 'ゴ', 'こ', 'コ', 'dakuten'],
+  ['za', 'za', 'ซะ',  'ざ', 'ザ', 'さ', 'サ', 'dakuten'],
+  ['ji', 'ji', 'จิ',  'じ', 'ジ', 'し', 'シ', 'dakuten'],
+  ['zu', 'zu', 'ซุ',  'ず', 'ズ', 'す', 'ス', 'dakuten'],
+  ['ze', 'ze', 'เซะ', 'ぜ', 'ゼ', 'せ', 'セ', 'dakuten'],
+  ['zo', 'zo', 'โซะ', 'ぞ', 'ゾ', 'そ', 'ソ', 'dakuten'],
+  ['da', 'da', 'ดะ',  'だ', 'ダ', 'た', 'タ', 'dakuten'],
+  ['di', 'ji', 'จิ',  'ぢ', 'ヂ', 'ち', 'チ', 'dakuten'],
+  ['du', 'zu', 'ซุ',  'づ', 'ヅ', 'つ', 'ツ', 'dakuten'],
+  ['de', 'de', 'เดะ', 'で', 'デ', 'て', 'テ', 'dakuten'],
+  ['do', 'do', 'โดะ', 'ど', 'ド', 'と', 'ト', 'dakuten'],
+  ['ba', 'ba', 'บะ',  'ば', 'バ', 'は', 'ハ', 'dakuten'],
+  ['bi', 'bi', 'บิ',  'び', 'ビ', 'ひ', 'ヒ', 'dakuten'],
+  ['bu', 'bu', 'บุ',  'ぶ', 'ブ', 'ふ', 'フ', 'dakuten'],
+  ['be', 'be', 'เบะ', 'べ', 'ベ', 'へ', 'ヘ', 'dakuten'],
+  ['bo', 'bo', 'โบะ', 'ぼ', 'ボ', 'ほ', 'ホ', 'dakuten'],
+  ['pa', 'pa', 'ปะ',  'ぱ', 'パ', 'は', 'ハ', 'handakuten'],
+  ['pi', 'pi', 'ปิ',  'ぴ', 'ピ', 'ひ', 'ヒ', 'handakuten'],
+  ['pu', 'pu', 'ปุ',  'ぷ', 'プ', 'ふ', 'フ', 'handakuten'],
+  ['pe', 'pe', 'เปะ', 'ぺ', 'ペ', 'へ', 'ヘ', 'handakuten'],
+  ['po', 'po', 'โปะ', 'ぽ', 'ポ', 'ほ', 'ホ', 'handakuten']
+];
+
+// ---- Contracted sounds (yōon: an i-row kana + small ゃ/ゅ/ょ) ----
+// [idSuffix, romaji, read, hira, kata]  — base + small char are derived from the string.
+const _YOON = [
+  ['kya', 'kya', 'เคียะ', 'きゃ', 'キャ'],
+  ['kyu', 'kyu', 'คิว',   'きゅ', 'キュ'],
+  ['kyo', 'kyo', 'เคียว', 'きょ', 'キョ'],
+  ['sha', 'sha', 'ชะ',    'しゃ', 'シャ'],
+  ['shu', 'shu', 'ชุ',    'しゅ', 'シュ'],
+  ['sho', 'sho', 'โชะ',   'しょ', 'ショ'],
+  ['cha', 'cha', 'จะ',    'ちゃ', 'チャ'],
+  ['chu', 'chu', 'จุ',    'ちゅ', 'チュ'],
+  ['cho', 'cho', 'โจะ',   'ちょ', 'チョ'],
+  ['nya', 'nya', 'เนียะ', 'にゃ', 'ニャ'],
+  ['nyu', 'nyu', 'นิว',   'にゅ', 'ニュ'],
+  ['nyo', 'nyo', 'เนียว', 'にょ', 'ニョ'],
+  ['hya', 'hya', 'เฮียะ', 'ひゃ', 'ヒャ'],
+  ['hyu', 'hyu', 'ฮิว',   'ひゅ', 'ヒュ'],
+  ['hyo', 'hyo', 'เฮียว', 'ひょ', 'ヒョ'],
+  ['mya', 'mya', 'เมียะ', 'みゃ', 'ミャ'],
+  ['myu', 'myu', 'มิว',   'みゅ', 'ミュ'],
+  ['myo', 'myo', 'เมียว', 'みょ', 'ミョ'],
+  ['rya', 'rya', 'เรียะ', 'りゃ', 'リャ'],
+  ['ryu', 'ryu', 'ริว',   'りゅ', 'リュ'],
+  ['ryo', 'ryo', 'เรียว', 'りょ', 'リョ'],
+  ['gya', 'gya', 'เกียะ', 'ぎゃ', 'ギャ'],
+  ['gyu', 'gyu', 'กิว',   'ぎゅ', 'ギュ'],
+  ['gyo', 'gyo', 'เกียว', 'ぎょ', 'ギョ'],
+  ['ja',  'ja',  'จะ',    'じゃ', 'ジャ'],
+  ['ju',  'ju',  'จุ',    'じゅ', 'ジュ'],
+  ['jo',  'jo',  'โจะ',   'じょ', 'ジョ'],
+  ['bya', 'bya', 'เบียะ', 'びゃ', 'ビャ'],
+  ['byu', 'byu', 'บิว',   'びゅ', 'ビュ'],
+  ['byo', 'byo', 'เบียว', 'びょ', 'ビョ'],
+  ['pya', 'pya', 'เปียะ', 'ぴゃ', 'ピャ'],
+  ['pyu', 'pyu', 'ปิว',   'ぴゅ', 'ピュ'],
+  ['pyo', 'pyo', 'เปียว', 'ぴょ', 'ピョ']
+];
+
+// Tag the basic kana, then append the derived voiced/contracted sets to each script.
+HIRAGANA.forEach(k => { k.sub = 'basic'; });
+KATAKANA.forEach(k => { k.sub = 'basic'; });
+
+const _romajiByChar = {};
+HIRAGANA.forEach(k => { _romajiByChar[k.char] = k.romaji; });
+KATAKANA.forEach(k => { _romajiByChar[k.char] = k.romaji; });
+
+_DAKUTEN.forEach(([sfx, romaji, read, hira, kata, bh, bk, mark]) => {
+  const note = (sfx === 'di' || sfx === 'du')
+    ? 'พบน้อย มักใช้ ' + (sfx === 'di' ? 'じ/ジ' : 'ず/ズ') + ' แทน'
+    : undefined;
+  HIRAGANA.push({ id: 'h-' + sfx, char: hira, romaji, read, group: 'dakuten', sub: 'dakuten', mark, baseChar: bh, baseRomaji: _romajiByChar[bh], note });
+  KATAKANA.push({ id: 'k-' + sfx, char: kata, romaji, read, group: 'dakuten', sub: 'dakuten', mark, baseChar: bk, baseRomaji: _romajiByChar[bk], note });
+});
+
+_YOON.forEach(([sfx, romaji, read, hira, kata]) => {
+  HIRAGANA.push({ id: 'h-' + sfx, char: hira, romaji, read, group: 'yoon', sub: 'yoon', mark: 'yoon', baseChar: hira[0], smallChar: hira[1] });
+  KATAKANA.push({ id: 'k-' + sfx, char: kata, romaji, read, group: 'yoon', sub: 'yoon', mark: 'yoon', baseChar: kata[0], smallChar: kata[1] });
+});
+
 // Category metadata drives the tabs/sections in the Learn view. Labels are Thai.
 const CATEGORIES = [
   { key: 'hiragana', label: 'ฮิรางานะ', items: HIRAGANA },

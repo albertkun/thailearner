@@ -15,18 +15,24 @@ built-in content is bundled as static mp3 files.
 
 ## Content
 
-- **ฮิรางานะ (Hiragana)** — all 46 basic kana, each with romaji + an approximate Thai reading.
-- **คาตาคานะ (Katakana)** — all 46 basic kana. Look-alike pairs (シ/ツ, ソ/ン) are flagged
-  in the tips.
+- **ฮิรางานะ (Hiragana)** — 104 kana, shown in three labeled subsections:
+  - *พื้นฐาน* — the 46 basic gojūon (look-alike pairs シ/ツ, ソ/ン flagged in the tips).
+  - *เสียงขุ่น ゛゜* — 25 voiced/semi-voiced (dakuten が/ざ/だ/ば + handakuten ぱ).
+  - *ควบกล้ำ ゃゅょ* — 33 contracted sounds (yōon: きゃ, しゃ, ちょ, じゅ …).
+- **คาตาคานะ (Katakana)** — the same 104, in the same three subsections.
 - **คำศัพท์ (Words)** — 12 starter words (greetings, いぬ/ねこ, みず, おいしい …) with Thai meanings.
 - Add your own words in the **คำศัพท์** tab; they join flashcards and writing practice.
 
-Each item carries a Thai **memory hook** (เคล็ดลับช่วยจำ) tying the kana's shape to its sound.
+Flashcards and writing practice can be scoped to any subsection (e.g. *ฮิรางานะ ゛゜* or
+*คาตาคานะ ゃゅょ*) from their deck/set dropdowns. Each item carries a Thai **memory hook**
+(เคล็ดลับช่วยจำ) — the basic kana have hand-written picture hooks; the voiced/contracted kana
+get a derived hook (base kana + mark, e.g. か + ゛→ が).
 
 ## Audio
 
-All built-in content ships with **pre-generated neural audio** (`assets/audio/`, ~2.5 MB)
-in two voices — **Nanami** (female) and **Keita** (male), switchable in the ความคืบหน้า tab.
+All built-in content ships with **pre-generated neural audio** (`assets/audio/`, ~4.8 MB,
+one mp3 per item × two voices) — **Nanami** (female) and **Keita** (male), switchable in the
+ความคืบหน้า tab.
 It works fully offline and involves no runtime TTS service.
 
 The audio is synthesized once at build time by `tools/generate-audio.mjs` (Microsoft Edge's
