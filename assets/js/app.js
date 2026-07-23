@@ -268,10 +268,18 @@
   }
 
   // ---------- WRITE ----------
-  const writeState = { catKey: 'consonant', idx: 0 };
+  // Start on a random consonant so practice doesn't always begin at ก ไก่.
+  const writeState = { catKey: 'consonant', idx: Math.floor(Math.random() * ((D.CONSONANTS && D.CONSONANTS.length) || 1)) };
   function writeItems() {
     if (writeState.catKey === 'myword') return window.Store.customWords;
     return D.CATEGORIES.find(c => c.key === writeState.catKey).items.map(it => D.ITEMS_BY_ID[it.id]);
+  }
+  // Pick a random index in [0, len), avoiding the current one when possible.
+  function randWriteIdx(len, cur) {
+    if (len <= 1) return 0;
+    let n;
+    do { n = Math.floor(Math.random() * len); } while (n === cur);
+    return n;
   }
 
   function renderWrite() {
@@ -294,7 +302,11 @@
     const catSel = el('select', 'select');
     [['consonant', 'Consonants'], ['vowel', 'Vowels'], ['tone', 'Tone marks'], ['word', 'Words'], ['myword', 'My Words']]
       .forEach(([v, l]) => { const o = el('option', null, l); o.value = v; if (writeState.catKey === v) o.selected = true; catSel.appendChild(o); });
-    catSel.addEventListener('change', () => { writeState.catKey = catSel.value; writeState.idx = 0; render(); });
+    catSel.addEventListener('change', () => {
+      writeState.catKey = catSel.value;
+      writeState.idx = randWriteIdx(writeItems().length, -1); // random start in the new set
+      render();
+    });
     const csWrap = el('label', 'field-inline', 'Set: '); csWrap.appendChild(catSel);
     row.appendChild(csWrap);
 
@@ -312,6 +324,7 @@
 
     const tools = el('div', 'write-tools');
     const prev = el('button', 'btn btn-ghost', '‹ Prev');
+    const rand = el('button', 'btn btn-ghost', '🎲 Random');
     const next = el('button', 'btn btn-ghost', 'Next ›');
     const clear = el('button', 'btn btn-ghost', 'Clear');
     const guideToggle = el('label', 'toggle');
@@ -319,11 +332,13 @@
     guideToggle.appendChild(gt); guideToggle.appendChild(el('span', null, 'Show guide'));
 
     prev.addEventListener('click', () => { writeState.idx = (writeState.idx - 1 + items.length) % items.length; render(); });
+    rand.addEventListener('click', () => { writeState.idx = randWriteIdx(items.length, writeState.idx); render(); });
     next.addEventListener('click', () => { writeState.idx = (writeState.idx + 1) % items.length; render(); });
     clear.addEventListener('click', () => window.Writing.clear());
     gt.addEventListener('change', () => window.Writing.toggleGuide(gt.checked));
 
     tools.appendChild(prev);
+    tools.appendChild(rand);
     tools.appendChild(clear);
     tools.appendChild(guideToggle);
     tools.appendChild(next);
