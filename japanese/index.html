@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="th" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ฝึกภาษาญี่ปุ่น — เรียนฮิรางานะ คาตาคานะ และคำศัพท์</title>
+  <meta name="description" content="แอปฝึกอ่านและเขียนภาษาญี่ปุ่นสำหรับคนไทย ใช้งานออฟไลน์ได้ ข้อมูลทั้งหมดอยู่ในเครื่องของคุณ" />
+  <!-- Japanese webfonts (glyphs) + a Thai UI font, so both render consistently.
+       The app still works without them (it falls back to system fonts).
+       Three Japanese styles, switchable in เขียน → รูปแบบ:
+         Noto Sans JP   — โกธิก (everyday sans, the default)
+         Noto Serif JP  — มินโจ (brush-like thick/thin strokes)
+         Klee One       — ลายมือ (pencil-handwriting, closest to how you write) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;600&family=Klee+One:wght@400;600&family=Noto+Sans+Thai:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand"><span class="logo">🇯🇵</span> ฝึกภาษาญี่ปุ่น</div>
+    <div class="spacer"></div>
+    <a class="lang-link" href="../" title="ไปที่แอปเรียนภาษาไทย">🇹🇭 เรียนไทย</a>
+    <button id="theme-toggle" title="สลับโหมดสว่าง/มืด">🌓</button>
+  </header>
+
+  <nav class="nav">
+    <button class="nav-btn" data-view="learn">📖 เรียนรู้</button>
+    <button class="nav-btn" data-view="flash">🃏 แฟลชการ์ด</button>
+    <button class="nav-btn" data-view="write">✍️ เขียน</button>
+    <button class="nav-btn" data-view="words">➕ คำศัพท์</button>
+    <button class="nav-btn" data-view="progress">📊 ความคืบหน้า</button>
+  </nav>
+
+  <main id="app"><!-- views render here --></main>
+
+  <script src="assets/js/data.js"></script>
+  <script src="assets/js/mnemonics.js"></script>
+  <script src="assets/js/storage.js"></script>
+  <script src="assets/js/tts.js"></script>
+  <script src="assets/js/writing.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

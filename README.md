@@ -11,6 +11,12 @@ text is ever sent to a server (custom words you add use your browser's own speec
 see [Audio](#audio)). The only other network request the page makes is to Google Fonts for
 the Thai webfont, and the app falls back to your system Thai font if you block it.
 
+## Also here: Japanese for Thai speakers 🇯🇵
+
+A sibling app built on the same engine lives in [`japanese/`](japanese/) — **ฝึกภาษาญี่ปุ่น**,
+a Thai-language trainer for learning to read and write Japanese (hiragana, katakana, and
+starter vocabulary). It deploys at the `/japanese/` path. See [`japanese/README.md`](japanese/README.md).
+
 ## Features
 
 - **Learn** — All 44 consonants (with tone class + acrophonic name), core vowels, tone
