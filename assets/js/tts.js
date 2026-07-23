@@ -20,6 +20,7 @@ const TTS = {
   voiceChoice: 'premwadee', // which bundled voice folder to play
   bundledAudioFailed: false, // set if a bundled mp3 ever fails to load (surfaced in Progress)
   _audio: null,          // the <audio> element currently playing
+  _token: 0,             // bumped per request; only the newest may report a failure
 
   init() {
     const savedVoice = localStorage.getItem(VOICE_KEY);
@@ -72,29 +73,44 @@ const TTS = {
   },
 
   _playFile(item) {
-    this.stop();
     const url = `assets/audio/${this.voiceChoice}/${item.id}.mp3`;
+    const token = ++this._token; // anything older than this is stale
+    this.stop();
+
     const audio = new Audio(url);
     audio.playbackRate = this.rate;
     if ('preservesPitch' in audio) audio.preservesPitch = true; // slow ≠ deep
 
-    // If the file can't load we still want *some* audio, but never fail silently —
-    // a silent fallback makes a misconfigured setup look like bad TTS quality.
+    // Only a *genuine* failure should fall back to the (much worse) browser voice.
+    // Both `onerror` and the play() rejection can fire for one click, and interrupting
+    // playback to start a new sound is normal — so guard against double-reporting and
+    // against treating our own interruption as an error.
+    let reported = false;
     const fallback = (why) => {
+      if (reported || token !== this._token) return; // already handled, or superseded
+      reported = true;
       this.bundledAudioFailed = true;
       console.warn(
         `[Thai Trainer] Bundled audio failed to play (${why}): ${url}\n` +
         'Falling back to the browser voice, which sounds much worse.\n' +
-        'Most likely you opened index.html directly as a file:// path — browsers block ' +
-        'loading media that way. Serve the folder over http instead:\n' +
-        '    cd <this folder> && python3 -m http.server 8000   → http://localhost:8000'
+        'If the page is on file://, serve it over http instead (browsers block file:// media); ' +
+        'otherwise the file may be missing or the browser may not support mp3.'
       );
       this.speak(window.ThaiData.speakableText(item));
     };
 
-    audio.onerror = () => fallback('load error');
+    audio.onerror = () => {
+      const code = audio.error && audio.error.code;
+      fallback('load error' + (code ? ` code ${code}` : ''));
+    };
     this._audio = audio;
-    audio.play().catch((err) => fallback((err && err.name) || 'play rejected'));
+    audio.play().catch((err) => {
+      const name = (err && err.name) || 'play rejected';
+      // AbortError = playback was deliberately stopped (a newer sound replaced it,
+      // or the user navigated). That's expected, not a failure — stay quiet.
+      if (name === 'AbortError') return;
+      fallback(name);
+    });
   },
 
   // Raw-text speech via Web Speech API (custom words, fallback path).
@@ -109,7 +125,12 @@ const TTS = {
   },
 
   stop() {
-    if (this._audio) { this._audio.pause(); this._audio = null; }
+    if (this._audio) {
+      const a = this._audio;
+      this._audio = null;
+      a.onerror = null; // detach first: our own teardown must not look like a load failure
+      a.pause();
+    }
     if ('speechSynthesis' in window) window.speechSynthesis.cancel();
   },
 

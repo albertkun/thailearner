@@ -455,9 +455,9 @@
     let msg;
     if (window.TTS.bundledAudioFailed) {
       msg = '⚠️ <b>The bundled neural audio failed to load</b>, so playback fell back to your browser’s voice ' +
-        '(which sounds much worse). This almost always means the page was opened as a <code>file://</code> path — ' +
-        'browsers block loading media that way. Serve the folder over http instead:<br>' +
-        '<code>python3 -m http.server 8000</code> → then open <code>http://localhost:8000</code>';
+        '(which sounds much worse). Check the browser console for the exact reason. Common causes: the page was ' +
+        'opened as a <code>file://</code> path (browsers block media there — serve it over http instead), the ' +
+        '<code>assets/audio/</code> files are missing from the deploy, or this browser can’t decode mp3.';
     } else {
       msg = '✅ High-quality Thai audio is bundled with the app for all built-in content — it works offline in every browser.';
     }
