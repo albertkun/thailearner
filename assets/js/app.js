@@ -16,12 +16,12 @@
 
   // ---------- shared bits ----------
 
-  // A small circular speak button.
-  function speakBtn(text, label) {
+  // A small circular speak button. Takes the item so bundled audio can be used.
+  function speakBtn(item, label) {
     const b = el('button', 'speak-btn', '🔊');
     b.title = 'Play sound' + (label ? ` (${label})` : '');
     b.setAttribute('aria-label', 'Play sound');
-    b.addEventListener('click', (e) => { e.stopPropagation(); window.TTS.speak(text); });
+    b.addEventListener('click', (e) => { e.stopPropagation(); window.TTS.speakItem(item); });
     return b;
   }
 
@@ -110,7 +110,7 @@
     card.appendChild(info);
 
     const foot = el('div', 'card-foot');
-    foot.appendChild(speakBtn(D.speakableText(item), item.name || item.char));
+    foot.appendChild(speakBtn(item, item.name || item.char));
     const pill = statusPill(item.id);
     pill.style.cursor = 'pointer';
     pill.title = 'Click to change progress';
@@ -123,7 +123,7 @@
     card.appendChild(foot);
 
     // Tapping the card plays the sound (nice on mobile).
-    card.addEventListener('click', () => window.TTS.speak(D.speakableText(item)));
+    card.addEventListener('click', () => window.TTS.speakItem(item));
     return card;
   }
 
@@ -227,7 +227,7 @@
       back.appendChild(el('div', 'flash-glyph', esc(item.char)));
       if (item.romanization) back.appendChild(el('div', 'flash-roman', esc(item.romanization)));
     }
-    const sb = speakBtn(D.speakableText(item), item.name || item.char);
+    const sb = speakBtn(item, item.name || item.char);
     sb.classList.add('flash-speak');
     back.appendChild(sb);
 
@@ -236,7 +236,7 @@
     card.addEventListener('click', () => {
       if (!fc.flipped) {
         fc.flipped = true;
-        window.TTS.speak(D.speakableText(item));
+        window.TTS.speakItem(item);
         render();
       }
     });
@@ -301,7 +301,7 @@
     const label = el('div', 'write-label');
     label.appendChild(el('span', 'write-name', esc(item.name || item.romanization || '')));
     if (item.meaning) label.appendChild(el('span', 'muted', ' — ' + esc(item.meaning)));
-    label.appendChild(speakBtn(D.speakableText(item), item.name || item.char));
+    label.appendChild(speakBtn(item, item.name || item.char));
     row.appendChild(label);
     wrap.appendChild(row);
 
@@ -376,7 +376,7 @@
         mid.appendChild(el('div', 'gloss', esc(w.meaning || '')));
         row.appendChild(mid);
         const actions = el('div', 'word-actions');
-        actions.appendChild(speakBtn(w.char, w.char));
+        actions.appendChild(speakBtn(w, w.char));
         const del = el('button', 'icon-btn', '🗑');
         del.title = 'Delete word';
         del.addEventListener('click', () => { window.Store.removeWord(w.id); render(); });
@@ -420,15 +420,32 @@
     });
     wrap.appendChild(cards);
 
-    // speech status
+    // voice picker — the bundled neural voice used for all built-in content
+    const voiceWrap = el('div', 'rate-row');
+    voiceWrap.appendChild(el('span', null, 'Voice'));
+    const voices = [['premwadee', '👩 Premwadee (female)'], ['niwat', '👨 Niwat (male)']];
+    voices.forEach(([key, label]) => {
+      const b = el('button', 'btn ' + (window.TTS.voiceChoice === key ? 'btn-primary' : 'btn-ghost'), label);
+      b.addEventListener('click', () => {
+        window.TTS.setVoiceChoice(key);
+        window.TTS.speakItem(D.ITEMS_BY_ID['w-sawatdee']); // instant preview
+        render();
+      });
+      voiceWrap.appendChild(b);
+    });
+    wrap.appendChild(voiceWrap);
+
+    // speech status — bundled audio always works; Web Speech only matters for custom words
     const speech = el('div', 'note-box');
+    let msg = '✅ High-quality Thai audio is bundled with the app for all built-in content — it works offline in every browser.';
     if (!('speechSynthesis' in window)) {
-      speech.innerHTML = '⚠️ This browser doesn’t support speech synthesis, so audio won’t work.';
+      msg += '<br>⚠️ This browser has no speech synthesis, so <b>custom words you add</b> will have no audio.';
     } else if (!window.TTS.hasThaiVoice()) {
-      speech.innerHTML = 'ℹ️ No Thai (th-TH) voice detected on your system yet, so audio may use a default voice or be silent. On most systems you can add one in your OS speech/language settings. (macOS: <i>Kanya</i>, Windows: <i>Pattara</i>, or install a Thai language pack.)';
+      msg += '<br>ℹ️ No Thai (th-TH) system voice detected, so <b>custom words you add</b> may use a default voice or stay silent. You can add one in your OS speech/language settings (macOS: <i>Kanya</i>, Windows: <i>Pattara</i>, or a Thai language pack).';
     } else {
-      speech.innerHTML = '✅ Thai voice ready — audio playback is available.';
+      msg += `<br>✅ Custom words use your browser's Thai voice (<i>${esc(window.TTS.voice.name)}</i>).`;
     }
+    speech.innerHTML = msg;
     wrap.appendChild(speech);
 
     // speech rate
@@ -438,7 +455,7 @@
     rate.addEventListener('input', () => window.TTS.setRate(parseFloat(rate.value)));
     rateWrap.appendChild(rate);
     const testBtn = el('button', 'btn btn-ghost', '🔊 Test');
-    testBtn.addEventListener('click', () => window.TTS.speak('สวัสดี'));
+    testBtn.addEventListener('click', () => window.TTS.speakItem(D.ITEMS_BY_ID['w-sawatdee']));
     rateWrap.appendChild(testBtn);
     wrap.appendChild(rateWrap);
 

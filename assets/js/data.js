@@ -52,31 +52,33 @@ const CONSONANTS = [
   { id: 'c-ho-nokhuk',     char: 'ฮ', name: 'ho nokhuk',     thaiName: 'ฮ นกฮูก',   meaning: 'owl',            initial: 'h',  final: '-',  class: 'low'  }
 ];
 
+// `speakText` is what TTS actually says: the standard Thai name (e.g. สระอะ), since a
+// bare vowel sign or combining tone mark on its own isn't pronounceable.
 const VOWELS = [
-  { id: 'v-a',       char: DOTTED + 'ะ',        name: 'sara a',        sound: 'a',   length: 'short', note: 'short "a" as in "ah" cut off' },
-  { id: 'v-aa',      char: DOTTED + 'า',        name: 'sara aa',       sound: 'aa',  length: 'long',  note: 'long "aa" as in "father"' },
-  { id: 'v-i',       char: DOTTED + 'ิ',         name: 'sara i',        sound: 'i',   length: 'short', note: 'short "i" as in "sit"' },
-  { id: 'v-ii',      char: DOTTED + 'ี',         name: 'sara ii',       sound: 'ii',  length: 'long',  note: 'long "ee" as in "see"' },
-  { id: 'v-ue',      char: DOTTED + 'ึ',         name: 'sara ue',       sound: 'ue',  length: 'short', note: 'short unrounded "u" (no English equivalent)' },
-  { id: 'v-uue',     char: DOTTED + 'ื',         name: 'sara uue',      sound: 'ue',  length: 'long',  note: 'long unrounded "u"' },
-  { id: 'v-u',       char: DOTTED + 'ุ',         name: 'sara u',        sound: 'u',   length: 'short', note: 'short "u" as in "put"' },
-  { id: 'v-uu',      char: DOTTED + 'ู',         name: 'sara uu',       sound: 'uu',  length: 'long',  note: 'long "oo" as in "food"' },
-  { id: 'v-e',       char: 'เ' + DOTTED,        name: 'sara e',        sound: 'e',   length: 'long',  note: 'long "e" as in "may"' },
-  { id: 'v-ae',      char: 'แ' + DOTTED,        name: 'sara ae',       sound: 'ae',  length: 'long',  note: 'long "ae" as in "cat" stretched' },
-  { id: 'v-o',       char: 'โ' + DOTTED,        name: 'sara o',        sound: 'o',   length: 'long',  note: 'long "o" as in "go"' },
-  { id: 'v-oe',      char: 'เ' + DOTTED + 'อ',  name: 'sara oe',       sound: 'oe',  length: 'long',  note: '"er" as in "her" (British)' },
-  { id: 'v-ai-maimuan', char: 'ใ' + DOTTED,    name: 'sara ai (mai muan)', sound: 'ai', length: 'short', note: '"ai" as in "Thai" — used in ~20 words' },
-  { id: 'v-ai-maimalai', char: 'ไ' + DOTTED,   name: 'sara ai (mai malai)', sound: 'ai', length: 'short', note: '"ai" as in "Thai" — the common one' },
-  { id: 'v-am',      char: DOTTED + 'ำ',        name: 'sara am',       sound: 'am',  length: 'short', note: '"am" as in "hum"' },
-  { id: 'v-ao',      char: 'เ' + DOTTED + 'า',  name: 'sara ao',       sound: 'ao',  length: 'short', note: '"ao" as in "cow"' }
+  { id: 'v-a',       char: DOTTED + 'ะ',        name: 'sara a',        speakText: 'สระอะ',   sound: 'a',   length: 'short', note: 'short "a" as in "ah" cut off' },
+  { id: 'v-aa',      char: DOTTED + 'า',        name: 'sara aa',       speakText: 'สระอา',   sound: 'aa',  length: 'long',  note: 'long "aa" as in "father"' },
+  { id: 'v-i',       char: DOTTED + 'ิ',         name: 'sara i',        speakText: 'สระอิ',    sound: 'i',   length: 'short', note: 'short "i" as in "sit"' },
+  { id: 'v-ii',      char: DOTTED + 'ี',         name: 'sara ii',       speakText: 'สระอี',    sound: 'ii',  length: 'long',  note: 'long "ee" as in "see"' },
+  { id: 'v-ue',      char: DOTTED + 'ึ',         name: 'sara ue',       speakText: 'สระอึ',    sound: 'ue',  length: 'short', note: 'short unrounded "u" (no English equivalent)' },
+  { id: 'v-uue',     char: DOTTED + 'ื',         name: 'sara uue',      speakText: 'สระอือ',   sound: 'ue',  length: 'long',  note: 'long unrounded "u"' },
+  { id: 'v-u',       char: DOTTED + 'ุ',         name: 'sara u',        speakText: 'สระอุ',    sound: 'u',   length: 'short', note: 'short "u" as in "put"' },
+  { id: 'v-uu',      char: DOTTED + 'ู',         name: 'sara uu',       speakText: 'สระอู',    sound: 'uu',  length: 'long',  note: 'long "oo" as in "food"' },
+  { id: 'v-e',       char: 'เ' + DOTTED,        name: 'sara e',        speakText: 'สระเอ',   sound: 'e',   length: 'long',  note: 'long "e" as in "may"' },
+  { id: 'v-ae',      char: 'แ' + DOTTED,        name: 'sara ae',       speakText: 'สระแอ',   sound: 'ae',  length: 'long',  note: 'long "ae" as in "cat" stretched' },
+  { id: 'v-o',       char: 'โ' + DOTTED,        name: 'sara o',        speakText: 'สระโอ',   sound: 'o',   length: 'long',  note: 'long "o" as in "go"' },
+  { id: 'v-oe',      char: 'เ' + DOTTED + 'อ',  name: 'sara oe',       speakText: 'สระเออ',  sound: 'oe',  length: 'long',  note: '"er" as in "her" (British)' },
+  { id: 'v-ai-maimuan', char: 'ใ' + DOTTED,    name: 'sara ai (mai muan)',  speakText: 'สระใอ ไม้ม้วน',  sound: 'ai', length: 'short', note: '"ai" as in "Thai" — used in ~20 words' },
+  { id: 'v-ai-maimalai', char: 'ไ' + DOTTED,   name: 'sara ai (mai malai)', speakText: 'สระไอ ไม้มลาย', sound: 'ai', length: 'short', note: '"ai" as in "Thai" — the common one' },
+  { id: 'v-am',      char: DOTTED + 'ำ',        name: 'sara am',       speakText: 'สระอำ',   sound: 'am',  length: 'short', note: '"am" as in "hum"' },
+  { id: 'v-ao',      char: 'เ' + DOTTED + 'า',  name: 'sara ao',       speakText: 'สระเอา',  sound: 'ao',  length: 'short', note: '"ao" as in "cow"' }
 ];
 
 const TONES = [
-  { id: 't-mai-ek',        char: DOTTED + '่', name: 'mai ek',        note: '1st tone mark — often gives low/falling tone' },
-  { id: 't-mai-tho',       char: DOTTED + '้', name: 'mai tho',       note: '2nd tone mark — often gives falling/high tone' },
-  { id: 't-mai-tri',       char: DOTTED + '๊', name: 'mai tri',       note: '3rd tone mark — high tone (mostly mid-class)' },
-  { id: 't-mai-chattawa',  char: DOTTED + '๋', name: 'mai chattawa',  note: '4th tone mark — rising tone (mostly mid-class)' },
-  { id: 't-thanthakhat',   char: DOTTED + '์', name: 'thanthakhat',   note: 'silencer — marks a letter as not pronounced' }
+  { id: 't-mai-ek',        char: DOTTED + '่', name: 'mai ek',        speakText: 'ไม้เอก',    note: '1st tone mark — often gives low/falling tone' },
+  { id: 't-mai-tho',       char: DOTTED + '้', name: 'mai tho',       speakText: 'ไม้โท',     note: '2nd tone mark — often gives falling/high tone' },
+  { id: 't-mai-tri',       char: DOTTED + '๊', name: 'mai tri',       speakText: 'ไม้ตรี',    note: '3rd tone mark — high tone (mostly mid-class)' },
+  { id: 't-mai-chattawa',  char: DOTTED + '๋', name: 'mai chattawa',  speakText: 'ไม้จัตวา',  note: '4th tone mark — rising tone (mostly mid-class)' },
+  { id: 't-thanthakhat',   char: DOTTED + '์', name: 'thanthakhat',   speakText: 'ทัณฑฆาต',  note: 'silencer — marks a letter as not pronounced' }
 ];
 
 // Starter vocabulary. Custom words the user adds get category 'myword'.
@@ -111,11 +113,11 @@ CATEGORIES.forEach(cat => {
   });
 });
 
-// The plain (speakable) text for an item — strip the dotted circle placeholder.
+// The plain (speakable) text for an item.
 function speakableText(item) {
-  if (item.category === 'word' || item.category === 'myword') return item.char;
-  // For consonants, speak the full name-word (e.g. "ก ไก่") which is clearer than the bare glyph.
-  if (item.category === 'consonant' && item.thaiName) return item.thaiName;
+  if (item.speakText) return item.speakText;               // vowels & tone marks: Thai name
+  if (item.category === 'consonant' && item.thaiName) return item.thaiName; // e.g. "ก ไก่"
+  // Words (built-in and custom): the word itself. Strip the ◌ placeholder as a last resort.
   return item.char.replace(new RegExp(DOTTED, 'g'), '');
 }
 

@@ -6,9 +6,10 @@ add your own vocabulary, and hear it all spoken aloud.
 
 **Privacy first:** everything you do stays in your browser. There is no backend, no
 account, and no analytics. Your progress and custom words live in `localStorage` on your
-own device, and speech is synthesized locally by your browser — no text is ever sent to a
-server. The only network request the page makes is to Google Fonts for the Thai webfont,
-and the app falls back to your system Thai font if you block it.
+own device. Audio for all built-in content is bundled with the app as static files — no
+text is ever sent to a server (custom words you add use your browser's own speech engine;
+see [Audio](#audio)). The only other network request the page makes is to Google Fonts for
+the Thai webfont, and the app falls back to your system Thai font if you block it.
 
 ## Features
 
@@ -23,16 +24,34 @@ and the app falls back to your system Thai font if you block it.
 - **Progress** — Per-category mastery bars, a speech-rate control, and **export/import** so
   you can back up your data to a file (the only way data leaves your device — by your choice).
 
-## Text-to-speech
+## Audio
 
-Audio uses the browser's built-in **Web Speech API** with a Thai (`th-TH`) voice.
+All built-in content (consonants, vowels, tone marks, starter vocabulary) ships with
+**pre-generated neural audio** (`assets/audio/`, ~2 MB) in two voices — **Premwadee**
+(female) and **Niwat** (male), switchable in the Progress tab. It sounds identical on
+every browser and OS, works fully offline, and involves no runtime TTS service — they're
+just static mp3 files, so the privacy story is unchanged.
+
+The audio is synthesized once at build time by `tools/generate-audio.mjs` (using Microsoft
+Edge's free neural Thai voices). Re-run it only if the dataset in `data.js` changes:
+
+```bash
+cd tools && npm install && npm run generate-audio
+```
+
+**Custom words you add** have no pre-generated file, so they fall back to the browser's
+built-in **Web Speech API** with the best Thai (`th-TH`) voice available (ranked by
+quality — Edge/Chrome's neural voices first, then OS voices):
 
 - **macOS/iOS:** ships with the Thai voice *Kanya* — works out of the box.
 - **Windows:** install the Thai language pack (Settings → Time & Language → Language) to get
   the *Pattara* voice.
 - **Android/Chrome:** usually available after installing Thai text-to-speech.
-- If no Thai voice is found, the Progress tab tells you, and playback falls back to a default
-  voice (which may mispronounce or stay silent).
+- If no Thai voice is found, the Progress tab tells you, and playback of custom words falls
+  back to a default voice (which may mispronounce or stay silent).
+- Note: some browser voices (Edge's "Online/Natural", Chrome's "Google ไทย") are network
+  voices — for custom words they send that word's text to the browser vendor to synthesize.
+  Built-in content never does this.
 
 ## Run locally
 
@@ -62,10 +81,15 @@ study data.
 index.html
 assets/
   css/style.css
+  audio/
+    premwadee/   # bundled neural audio, female voice (one mp3 per built-in item)
+    niwat/       # bundled neural audio, male voice
   js/
     data.js      # Thai character + vocab dataset
     storage.js   # localStorage progress, spaced repetition, export/import
-    tts.js       # Web Speech API wrapper (th-TH)
+    tts.js       # bundled-audio player + Web Speech fallback for custom words
     writing.js   # tracing canvas
     app.js       # views, routing, UI glue
+tools/
+  generate-audio.mjs  # build-time audio synthesis (re-run when data.js changes)
 ```

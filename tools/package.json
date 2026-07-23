@@ -1,0 +1,12 @@
+{
+  "name": "thai-trainer-tools",
+  "private": true,
+  "description": "Build-time tooling for Thai Trainer (audio generation). Not shipped with the site.",
+  "type": "module",
+  "scripts": {
+    "generate-audio": "node generate-audio.mjs"
+  },
+  "dependencies": {
+    "msedge-tts": "^2.0.7"
+  }
+}
