@@ -117,7 +117,10 @@ const Writing = {
       ctx.save();
       ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--guide').trim() || 'rgba(0,0,0,0.12)';
       const size = Math.min(w, h) * 0.7;
-      ctx.font = `${size}px "Noto Sans Thai", "Sarabun", sans-serif`;
+      // Follow the app-wide letterform style (looped print / serif / handwriting / loopless).
+      const family = getComputedStyle(document.documentElement).getPropertyValue('--thai-font').trim()
+        || '"Noto Sans Thai", "Sarabun", sans-serif';
+      ctx.font = `${size}px ${family}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(this.guideChar, w / 2, h / 2);

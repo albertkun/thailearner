@@ -50,6 +50,14 @@ body {
 }
 .thai, .glyph, .flash-glyph, .word-thai, .write-name { font-family: var(--thai-font); }
 
+/* Thai letterform style — set app-wide from the Write view, and applies everywhere
+   Thai is shown so what you read matches what you practise writing.
+   "Looped" (มีหัว) letters start from a small loop; that loop is where your pen
+   starts, so the looped styles are the ones to learn to write from. */
+:root[data-thaifont="serif"]   { --thai-font: "Noto Serif Thai", "Noto Sans Thai", "Leelawadee UI", serif; }
+:root[data-thaifont="hand"]    { --thai-font: "Itim", "Noto Sans Thai", "Leelawadee UI", cursive; }
+:root[data-thaifont="loopless"]{ --thai-font: "Kanit", "Noto Sans Thai", "Leelawadee UI", sans-serif; }
+
 /* ---------- header ---------- */
 .app-header {
   position: sticky; top: 0; z-index: 20;
@@ -189,6 +197,8 @@ body {
 }
 .write-tools { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: center; margin: 14px 0 6px; }
 .toggle { display: inline-flex; align-items: center; gap: 6px; font-size: .9rem; color: var(--muted); cursor: pointer; }
+
+.font-hint { font-size: .82rem; margin-top: 2px; }
 
 /* mnemonic / tip panel under the canvas */
 .tip-panel { margin: 16px 0 4px; background: var(--surface); border: 1px solid var(--border);

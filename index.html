@@ -5,10 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Thai Trainer — learn to read & write Thai</title>
   <meta name="description" content="A private, offline-friendly trainer for reading and writing Thai. All progress stays on your device." />
-  <!-- Load a Thai webfont so glyphs render consistently; the app still works without it. -->
+  <!-- Thai webfonts so glyphs render consistently; the app still works without them
+       (it falls back to whatever Thai font the system has).
+       Four styles, switchable in Write → Style:
+         Noto Sans Thai / Sarabun — looped print (the default)
+         Noto Serif Thai          — looped with strong stroke contrast; the หัว loops read clearly
+         Itim                     — looped handwriting, closest to how you write by hand
+         Kanit                    — loopless/modern, the signage & logo style -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&family=Sarabun:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;600;700&family=Sarabun:wght@400;600&family=Noto+Serif+Thai:wght@400;600&family=Itim&family=Kanit:wght@400;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css" />
 </head>
 <body>

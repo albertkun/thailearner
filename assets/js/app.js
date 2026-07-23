@@ -270,6 +270,31 @@
   // ---------- WRITE ----------
   // Start on a random consonant so practice doesn't always begin at ก ไก่.
   const AUTOSPEAK_KEY = 'thai-trainer:write-autospeak';
+  const FONT_KEY = 'thai-trainer:thaifont';
+  // Thai letterform styles. The looped ones (มีหัว) are what you learn to hand-write:
+  // the loop is where the pen starts. Loopless is display/signage style — useful to
+  // recognise, but not what you draw.
+  const THAI_FONTS = [
+    { key: 'sans',     label: 'Looped — print',       hint: 'Noto Sans Thai. Clean everyday text.' },
+    { key: 'serif',    label: 'Looped — strong',      hint: 'Noto Serif Thai. Thick/thin strokes make each loop obvious.' },
+    { key: 'hand',     label: 'Looped — handwriting', hint: 'Itim. Closest to how the letters are drawn by hand.' },
+    { key: 'loopless', label: 'Loopless — modern',    hint: 'Kanit. Signs and logos drop the loops — good to recognise, not to copy.' }
+  ];
+
+  function currentThaiFont() {
+    const saved = localStorage.getItem(FONT_KEY);
+    return THAI_FONTS.some(f => f.key === saved) ? saved : 'sans';
+  }
+
+  function applyThaiFont(key) {
+    localStorage.setItem(FONT_KEY, key);
+    document.documentElement.setAttribute('data-thaifont', key);
+    // The webfont may still be downloading; repaint the canvas guide once it lands.
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => { if (state.view === 'write') window.Writing.redraw(); });
+    }
+  }
+
   const writeState = {
     catKey: 'consonant',
     idx: Math.floor(Math.random() * ((D.CONSONANTS && D.CONSONANTS.length) || 1)),
@@ -316,6 +341,23 @@
     });
     const csWrap = el('label', 'field-inline', 'Set: '); csWrap.appendChild(catSel);
     row.appendChild(csWrap);
+
+    // Letterform style — changes the guide you trace (and Thai everywhere else).
+    const fontSel = el('select', 'select');
+    THAI_FONTS.forEach(f => {
+      const o = el('option', null, esc(f.label));
+      o.value = f.key;
+      o.title = f.hint;
+      if (currentThaiFont() === f.key) o.selected = true;
+      fontSel.appendChild(o);
+    });
+    fontSel.addEventListener('change', () => {
+      applyThaiFont(fontSel.value);
+      window.Writing.clear();  // repaint in the new face; fonts.ready above catches the late load
+      $('.font-hint', wrap).textContent = THAI_FONTS.find(f => f.key === fontSel.value).hint;
+    });
+    const fsWrap = el('label', 'field-inline', 'Style: '); fsWrap.appendChild(fontSel);
+    row.appendChild(fsWrap);
 
     const label = el('div', 'write-label');
     label.appendChild(el('span', 'write-name', esc(item.name || item.romanization || '')));
@@ -366,6 +408,9 @@
 
     const counter = el('div', 'muted center', `${writeState.idx + 1} / ${items.length}`);
     wrap.appendChild(counter);
+
+    const hint = el('div', 'muted center font-hint', esc(THAI_FONTS.find(f => f.key === currentThaiFont()).hint));
+    wrap.appendChild(hint);
 
     wrap.appendChild(tipPanel(item));
 
@@ -634,6 +679,7 @@
   // ---------- boot ----------
   function init() {
     window.TTS.init();
+    applyThaiFont(currentThaiFont());
     initTheme();
     $$('.nav-btn').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
     window.addEventListener('hashchange', () => setView(location.hash.slice(1)));
